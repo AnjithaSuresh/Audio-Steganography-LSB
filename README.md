@@ -2,7 +2,7 @@
 Audio steganography, LSB method, java code implementation
 
 Encoding
-Input: text file and audio file in wav format
+Input: text file and audio file in wav format\n
 Output: new audio file with text embedded
 
 Decoding
