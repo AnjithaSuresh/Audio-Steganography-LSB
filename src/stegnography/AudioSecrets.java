@@ -96,41 +96,23 @@ public class AudioSecrets {
                 
                
                 System.out.println("Enter the audio file name that you want the text encoded into (must be a .wav file)");
-                //System.out.print("or if you want a generated clip of static, type \"1\".\n> ");
                 String audioFileName = scan.next();
                 System.out.println();
                
                 byte[] audioData;
-			              /*  if (audioFileName.equals("1"))
-			                {
-			                        audioData = makeAudio(message.length); // Generates a clip of static.
-			                        System.out.print("Static generated. Enter a filename for it.\n> ");
-			                        audioFileName = scan.next();
-			                        System.out.println();
-			                        saveByteArrayAsAudioFile(audioData, audioFileName);
-			                }
-			                else*/
-                 
                 audioData = getAudioData(audioFileName);       
                
                
                 // First encode the total number of bytes that are going to be encoded into the first 32 bits(one int) of the audio data.
                 // This allows the message length to be determined right when the audio file is read.
                
-                //byte[] messageLength = new byte[4]; // 4 bytes in an int
-                
+             
                 int messageLengthInt = message.length;
                 
                 byte[] messageLength = bit_conversion(messageLengthInt);
                 
                // System.out.println("msg len int " + messageLengthInt);
-                /*for (int i = 3; i >= 0; i--)
-                {
-                        messageLength[i] = (byte)messageLengthInt; // store 1 byte in the byte array
-                        messageLengthInt = messageLengthInt >> 8;  // and then right shift by 8 bits to get the next byte in position
-                       // System.out.println(messageLength[i]+" ");
-                }
-               */
+               
                 LSBencode(messageLength, audioData, 0);
                 LSBencode(message, audioData, 32);
                
@@ -148,17 +130,7 @@ public class AudioSecrets {
         //              so if you encode an int at 0, then the next start index is 32.
         public static void LSBencode(byte[] message, byte[] audioData, int startIndex)
         {
-              /*  for (int audioDataIndex = startIndex, messageIndex = 0; audioDataIndex < startIndex+message.length * 8; audioDataIndex+=8, messageIndex++)
-                        for (int j = 0; j < 8; j++)
-                        {
-                                //System.err.println("audio data "+audioData[audioDataIndex+j]);
-                        		//System.err.println((audioData[audioDataIndex+j] & ~1) ^ (message[messageIndex] & 1));
-                                // (message[messageIndex] & 1) gets the least significant bit of the message
-                                // (audioData[audioDataIndex+j] & ~1) gets all of the non-least significant bits of the audioData
-                                // Then they are XORed together to combine them
-                                audioData[audioDataIndex+j] = (byte) ( (audioData[audioDataIndex+j] & ~1) ^ (message[messageIndex] & 1) );
-                                message[messageIndex] >>= 1;
-                        }*/
+             
         	
         	if (message.length + startIndex > audioData.length) {
     			throw new IllegalArgumentException("File not long enough!");
@@ -199,33 +171,7 @@ public class AudioSecrets {
                 // read message length which is an int stored in the first 32 bytes of the audioData
                 // messageLength tells the number of bytes that are encrypted in the audio data(not including itself)
                
-        	/*
-        		int messageLength = 0;
-               
-                // encodedData[] & 1 results in the least significant bit.
-                // Add that bit to the decoded data and then left shift to prepare for the next bit
-                messageLength += encodedData[0] & 1;
-                for (int i = 1; i < 32; i++)
-                {
-                        messageLength <<= 1;
-                        messageLength += encodedData[i] & 1;
-                }
-               
-                byte[] data = new byte[messageLength];
-                for (int audioIndex = 32, dataIndex = 0; audioIndex < messageLength + 32; audioIndex+=8, dataIndex++)
-                {
-                        data[dataIndex] += encodedData[audioIndex] & 1;
-                        for (int i = 7; i >= 0; i--)
-                        {
-                                data[dataIndex] <<= 1;
-                                data[dataIndex] += encodedData[audioIndex + i] & 1;
-                        }
-                       
-                        System.err.println("Byte " + dataIndex + " : " + data[dataIndex]);
-                }
-               
-                return data;
-            */
+        	
         	int length = 0;
     		int offset = 32;
     		// loop through 32 bytes of data to determine text length
@@ -261,14 +207,6 @@ public class AudioSecrets {
     		return result;
         }
        
-        // Makes a clip of static. 44100 values per second.
-        public static byte[] makeAudio (int messageLength) {
-                // messageLength is the number of bytes that will need to be encoded. So 8*messageLength = #bytes in audio needed
-                byte[] audio = new byte[ Math.max((8*messageLength)+44100, 5*44100)];
-                Random rand = new Random();
-                rand.nextBytes(audio);
-                return audio;
-        }
        
         // Returns the audio data given the name of a file
         public static byte[] getAudioData(String filename) {
@@ -320,12 +258,12 @@ public class AudioSecrets {
         }
         }
        
-        public static int getAudioDuration(byte[] data)
+      /*  public static int getAudioDuration(byte[] data)
         {
                 // 44100 bytes of data per second so just divide to get the total length in seconds
                 return data.length / 44100;
         }
-       
+       */
        
         // Char to Byte Array and reversal - safer than using the built in String methods because these will always use UTF-16
         public static byte[] charArrayToByteArray(char[] chars)
